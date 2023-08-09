@@ -1,0 +1,45 @@
+import argparse
+import requests
+
+BASE_URL = "http://localhost:5000"
+
+def get_next_number_cli(model_type):
+    response = requests.get(f"{BASE_URL}/next/{model_type}")
+    return response.json()["number"]
+
+def confirm_number_cli(model_type):
+    response = requests.post(f"{BASE_URL}/confirm/{model_type}")
+    return response.json()["status"]
+
+def view_numbers_cli():
+    response = requests.get(f"{BASE_URL}/view")
+    return response.json()
+
+def main():
+    parser = argparse.ArgumentParser(description="CLI client for the numbering system microservice. Use this tool to interact with the model numbering service, retrieve or confirm numbers.")
+    
+    subparsers = parser.add_subparsers(dest="command", title="Commands", description="Valid commands to use", help="Use 'command -h' for more information about each command")
+
+    get_parser = subparsers.add_parser('get', help="Get the next number for a model type without confirming")
+    get_parser.add_argument('type', help="Model type identifier, e.g., 'HW' for hardware or 'SYS' for system")
+
+    confirm_parser = subparsers.add_parser('confirm', help="Confirm the use of the latest number for a model type. This 'locks in' the number for use.")
+    confirm_parser.add_argument('type', help="Model type identifier to confirm, e.g., 'HW' for hardware")
+
+    view_parser = subparsers.add_parser('view', help="View current numbers for all model types")
+
+    args = parser.parse_args()
+
+    if args.command == "get":
+        number = get_next_number_cli(args.type)
+        print(number)
+    elif args.command == "confirm":
+        print(confirm_number_cli(args.type))
+    elif args.command == "view":
+        for entry in view_numbers_cli():
+            model_type = entry[0]
+            number = entry[1]
+            print(f"{model_type}-{str(number).zfill(4)}")
+
+if __name__ == "__main__":
+    main()

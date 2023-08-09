@@ -1,8 +1,15 @@
 import argparse
 import requests
 import cmd
+import configparser
 
-BASE_URL = "http://localhost:5001"
+# Read from the config file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+HOST = config.get('DEFAULT', 'HOST', fallback='localhost')
+PORT = config.get('DEFAULT', 'PORT', fallback='5001')
+BASE_URL = f"http://{HOST}:{PORT}"
 
 class NumberingCLI(cmd.Cmd):
     intro = "Welcome to the model numbering CLI. Type help or ? to list commands.\n"

@@ -1,6 +1,15 @@
 from flask import Flask, jsonify
 import sqlite3
 from datetime import datetime, timedelta
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+HOST = config.get("DEFAULT", "HOST", fallback="127.0.0.1")
+PORT = int(config.get("DEFAULT", "PORT", fallback="5001"))
+RELEASE_TIME = int(config.get("DEFAULT", "RELEASE_TIME", fallback="172800"))
+CHECK_INTERVAL = int(config.get("DEFAULT", "CHECK_INTERVAL", fallback="3600"))
 
 app = Flask(__name__)
 
@@ -107,7 +116,7 @@ def search(model_type, number):
 def release_unconfirmed_numbers():
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cutoff_time = datetime.now() - timedelta(hours=48)
+        cutoff_time = datetime.now() - timedelta(seconds=RELEASE_TIME)
         cursor.execute("UPDATE model_details SET status='released' WHERE status='pulled' AND timestamp < ?", (cutoff_time,))
         conn.commit()
 
@@ -115,6 +124,7 @@ if __name__ == '__main__':
     init_db()
     from apscheduler.schedulers.background import BackgroundScheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(release_unconfirmed_numbers, 'interval', hours=1)
+    # scheduler.add_job(release_unconfirmed_numbers, 'interval', hours=1)
+    scheduler.add_job(release_unconfirmed_numbers, trigger='interval', seconds=CHECK_INTERVAL)
     scheduler.start()
-    app.run(port=5001)
+    app.run(host=HOST, port=PORT)

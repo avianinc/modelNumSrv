@@ -18,7 +18,7 @@ jobs:
 
       - name: Build and push
         env:
-          IMAGE_NAME: modelNumberSys  # Name of your Docker image, replace it accordingly.
+          IMAGE_NAME: modelnumbersrv  # Name of your Docker image, replace it accordingly.
         run: |
           docker build -t $IMAGE_NAME .
           docker tag $IMAGE_NAME ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest

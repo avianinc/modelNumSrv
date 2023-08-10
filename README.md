@@ -72,7 +72,7 @@ Here's a quick overview of the available commands with examples:
 
 - **Adding a Model Type**
   ```bash
-  add_model_type SYS
+  add_model_type SYS "Description of this type of model"
   ```
   This adds a new model type named "SYS" for systems.
 
@@ -85,17 +85,19 @@ Here's a quick overview of the available commands with examples:
   ```bash
   pull SYS
   ```
-  This retrieves and reserves the next available number for the "SYS" model type.
+  This retrieves and reserves the next available number for the "SYS" model type. Pulling a number starts a timer of length set in the config.ini file. If not confirmed, the server will change a number's status to release after the time out freeing it up for other users.
 
 - **Confirming a Specific Number**
   ```bash
   confirm SYS-0001
   ```
+  This sets the number's status to confirm and removes the number from the pool
 
 - **Releasing a Specific Number**
   ```bash
   release SYS-0001
   ```
+  This set the number's status release assuming a user pulled and confirmed a number but no longer needs the number. Setting the number to relese will allow the next pull to fetch this number.
 
 - **Searching for a Specific Number's Status**
   ```bash

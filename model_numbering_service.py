@@ -1,7 +1,9 @@
-from flask import Flask, jsonify
-import sqlite3
 from datetime import datetime, timedelta
+import sqlite3
+from flask import Flask, jsonify, request
+from apscheduler.schedulers.background import BackgroundScheduler
 import configparser
+from datetime import datetime, timedelta
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -64,7 +66,7 @@ def pull_number(model_type):
         row = cursor.fetchone()
         if row:
             model_number = row[0]
-            cursor.execute("UPDATE model_details SET status='pulled', timestamp=CURRENT_TIMESTAMP WHERE model_type=? AND model_number=?", (model_type, model_number))
+            cursor.execute("UPDATE model_details SET status='pulled', timestamp=? WHERE model_type=? AND model_number=?", (datetime.utcnow(), model_type, model_number))
             conn.commit()
             return jsonify({"number": model_number}), 200
         else:
@@ -116,9 +118,36 @@ def search(model_type, number):
 def release_unconfirmed_numbers():
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cutoff_time = datetime.now() - timedelta(seconds=RELEASE_TIME)
+        cutoff_time = datetime.utcnow() - timedelta(seconds=RELEASE_TIME)
+        
+        # Fetch numbers that are set to be released
+        cursor.execute("SELECT * FROM model_details WHERE status='pulled'")
+        all_pulled = cursor.fetchall()
+
+        # Fetch numbers that should be released based on the timestamp
+        cursor.execute("SELECT * FROM model_details WHERE status='pulled' AND timestamp < ?", (cutoff_time,))
+        to_release = cursor.fetchall()
+
+        # Update those entries' status to 'released'
         cursor.execute("UPDATE model_details SET status='released' WHERE status='pulled' AND timestamp < ?", (cutoff_time,))
         conn.commit()
+
+        # Print the information to console for debugging
+        # print(f"{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}: Checking for numbers to release...")
+        
+        # if all_pulled:
+        #     print(f"Currently pulled numbers:")
+        #     for entry in all_pulled:
+        #         print(f"Model type: {entry[1]}, Number: {entry[2]}, Timestamp: {entry[4]}")
+
+        # if to_release:
+        #     print(f"Releasing the following numbers:")
+        #     for entry in to_release:
+        #         print(f"Model type: {entry[1]}, Number: {entry[2]}, Timestamp: {entry[4]}")
+        # else:
+        #     print(f"No numbers found to release at this time.")
+
+        # print("\n")  # Add a newline for clarity in the logs
 
 if __name__ == '__main__':
     init_db()

@@ -7,7 +7,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-HOST = config.get('DEFAULT', 'HOST', fallback='localhost')
+HOST = 'localhost'
 PORT = config.get('DEFAULT', 'PORT', fallback='5001')
 BASE_URL = f"http://{HOST}:{PORT}"
 

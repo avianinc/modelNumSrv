@@ -113,12 +113,12 @@ Use `help` or `?` to see descriptions and guidance for each command.
 
 ## Executable CLI:
 
-For ease of use, especially for those unfamiliar with Python or who prefer not to run scripts directly, an executable version of the CLI named `numcli.exe` has been provided in the `dist` folder.
+For ease of use, especially for those unfamiliar with Python or who prefer not to run scripts directly, an executable version of the CLI named `numcli.exe` has been provided in the `dist` folder. Run this file with the ```--interactive``` command. 
 
 ### Using the Executable:
 
 1. Navigate to the `dist` folder.
-2. Double click on `numcli.exe` or run it from the command line.
+2. From a command prompt `.\numcli.exe --interactive` or run it from the command line.
 3. This will start the CLI and you can use it as you would with the script version.
 
 Remember, even if using the executable, ensure the server (Flask API) is running either locally or in the Docker container.

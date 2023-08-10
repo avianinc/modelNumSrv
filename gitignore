@@ -13,3 +13,5 @@
 *.settings
 *.tmproj
 *.esproj
+*.zip
+*.pkg

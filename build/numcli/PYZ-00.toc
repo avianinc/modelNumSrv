@@ -1,4 +1,4 @@
-('C:\\Users\\JohnDeHart\\Documents\\working\\autoNumber\\build\\numcli\\PYZ-00.pyz',
+('C:\\Users\\JohnDeHart\\Documents\\GitHub\\modelNumSrv\\build\\numcli\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\JohnDeHart\\.conda\\envs\\autoNumber\\lib\\__future__.py',
    'PYMODULE'),

@@ -315,9 +315,10 @@ class NumberingCLI(cmd.Cmd):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Model Numbering CLI")
-    parser.add_argument("--interactive", action="store_true", help="Enter interactive mode")
+    parser.add_argument("--non-interactive", action="store_true", help="Run in non-interactive mode")
     args = parser.parse_args()
-    if args.interactive:
-        NumberingCLI().cmdloop()
+    
+    if args.non_interactive:
+        print("Running in non-interactive mode. Use without --non-interactive to enter interactive mode.")
     else:
-        print("Run with --interactive to enter interactive mode or use the API endpoints directly.")
+        NumberingCLI().cmdloop()

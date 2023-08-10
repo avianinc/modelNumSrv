@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pyinstaller
-          # Add any other dependencies you need
+          pip install argparse requests configparser
 
       - name: Build Windows executable
         run: pyinstaller --onefile ./numbCLI.py

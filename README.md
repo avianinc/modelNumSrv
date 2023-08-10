@@ -31,17 +31,17 @@ Replace `5001` with your preferred port if necessary.
 Navigate to the project's root directory and execute:
 
 ```bash
-docker build -t model-numbering-system .
+docker build -t model-numbering-service .
 ```
 
-This builds a Docker image titled `model-numbering-system`.
+This builds a Docker image titled `model-numbering-service`.
 
 3. **Running the Docker Container (Docker setup):**
 
 After creating the image, start the server inside a Docker container with:
 
 ```bash
-docker run -p 5001:5001 model-numbering-system
+docker run -p 5001:5001 model-numbering-service
 ```
 
 Substitute `5001:5001` with `<host_port>:<container_port>` if you adjusted the port in `config.ini`.

@@ -1,0 +1,15 @@
+/build
+*.spec
+*.egg-info
+*.egg
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.bak
+*.cache
+*.project
+*.pydevproject
+*.settings
+*.tmproj
+*.esproj

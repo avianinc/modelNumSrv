@@ -1,3 +1,25 @@
+"""
+---------------------------------------------------------------
+Model Numbering Service - model_numbering_service.py
+---------------------------------------------------------------
+
+Description:
+    A web service that manages model numbers. It supports 
+    operations such as adding model types, pulling, 
+    confirming, releasing, and searching numbers. The service 
+    maintains its state in a SQLite database named `model_numbers.db`.
+
+Author:
+    John DeHart (jdehart@avian.com)
+
+Date:
+    Created on: August 10, 2023 
+
+License:
+    MIT License
+
+"""
+
 from datetime import datetime, timedelta
 import sqlite3
 from flask import Flask, jsonify, request

@@ -1,3 +1,26 @@
+"""
+-------------------------------------------------------------
+Model Numbering Command-Line Interface (CLI) - numbCLI.py
+-------------------------------------------------------------
+
+Description:
+    Provides an interactive CLI for users to interact with 
+    the Model Numbering Service. Allows operations such 
+    as adding model types, pulling numbers, confirming,
+    releasing, and searching for model numbers.
+
+Author:
+    John DeHart (jdehart@avian.com)
+
+Date:
+    Created on: August 10, 2023 
+
+License:
+    MIT License
+
+"""
+
+
 import argparse
 import requests
 import cmd

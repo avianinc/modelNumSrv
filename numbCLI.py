@@ -26,7 +26,8 @@ import requests
 import cmd
 import configparser
 import os
-import shlex
+import sys
+
 
 # Configuration utility functions
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser("~"), ".model_cli_config")
@@ -54,8 +55,73 @@ BASE_URL = get_config("BASE_URL") or f"http://{HOST}:{PORT}"
 
 class NumberingCLI(cmd.Cmd):
     use_rawinput = True
-    intro = "Welcome to the model numbering CLI. Type help or ? to list commands.\n"
-    prompt = "(numbering) "
+    intro = "Welcome to the model numbering CLI. Type the number of the desired command from the list below:\n"
+    prompt = "Select option: "
+
+    menu = {
+        "A": {"info": "Add- Model Type", "func": "add_model_type_prompt"},
+        "L": {"info": "List - Model Types", "func": "list_model_types"},
+        "P": {"info": "Pull - Model Number", "func": "pull_prompt"},
+        "C": {"info": "Confirm - Model Number", "func": "confirm_prompt"},
+        "R": {"info": "Release - Model Number", "func": "release_prompt"},
+        "S": {"info": "Search - Model Number", "func": "search_prompt"},
+        "E": {"info": "Edit - Model Number", "func": "edit_model_details_prompt"},
+        "U": {"info": "Update - Base URL", "func": "set_base_url_prompt"},
+        "X": {"info": "Exit", "func": "do_exit"},
+    }
+
+    def preloop(self):
+        self.print_menu()
+
+    def emptyline(self):
+        self.print_menu()
+
+    def print_menu(self):
+        for key, entry in self.menu.items():
+            print(f"{key}. {entry['info']}")
+
+    def default(self, line):
+        if line in self.menu:
+            func_name = self.menu[line]['func']
+            getattr(self, func_name)('')
+        else:
+            print("Invalid option. Please choose a valid number.")
+            self.print_menu()
+
+    def add_model_type_prompt(self, _):
+        model_type = input("Enter model type (e.g. SYS): ")
+        description = input("Enter description: ")
+        self.do_add_model_type(f"{model_type} {description}")
+
+    def pull_prompt(self, _):
+        model_type = input("Enter model type for which to retrieve a number (e.g. SYS): ")
+        self.do_pull(model_type)
+
+    def list_model_types(self, _):
+        model_type = "List current model types: "
+        self.do_list_model_types(model_type)
+
+    def confirm_prompt(self, _):
+        model_number = input("Enter model number to confirm (e.g. SYS-0001): ")
+        self.do_confirm(model_number)
+
+    def release_prompt(self, _):
+        model_number = input("Enter model number to release (e.g. SYS-0001): ")
+        self.do_release(model_number)
+
+    def search_prompt(self, _):
+        model_number = input("Enter model number to search (e.g. SYS-0001): ")
+        self.do_search(model_number)
+
+    def edit_model_details_prompt(self, _):
+        model_number = input("Enter model number (e.g. SYS-0001): ")
+        model_name = input('Enter model name (in quotes if there are spaces): ')
+        model_notes = input('Enter model notes (in quotes if there are spaces): ')
+        self.do_edit_model_details(f"{model_number} {model_name} {model_notes}")
+
+    def set_base_url_prompt(self, _):
+        url = input("Enter the new base URL: ")
+        self.do_set_base_url(url)
 
     def do_add_model_type(self, args):
         """Add a new model type with a description. Usage: add_model_type <model_type> <description>"""
@@ -205,7 +271,8 @@ class NumberingCLI(cmd.Cmd):
 
     def do_exit(self, _):
         """Exit the CLI."""
-        return True
+        print("Exiting the CLI...")
+        sys.exit(0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Model Numbering CLI")

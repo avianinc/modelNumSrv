@@ -56,6 +56,8 @@ def init_db():
             id INTEGER PRIMARY KEY,
             model_type TEXT NOT NULL,
             model_number INTEGER NOT NULL,
+            model_name TEXT,
+            model_notes TEXT,
             status TEXT NOT NULL DEFAULT 'pulled',
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -168,16 +170,31 @@ def release(model_type, number):
 def search(model_type, number):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT status FROM model_details WHERE model_type=? AND model_number=?", (model_type, int(number)))
+
+        # Retrieve status, model_name, and model_notes for the given model_type and model_number
+        cursor.execute("""
+            SELECT status, model_name, model_notes 
+            FROM model_details 
+            WHERE model_type=? AND model_number=?
+        """, (model_type, int(number)))
+
         row = cursor.fetchone()
 
         # If a matching row was found
         if row:
-            status = row[0]
-            return jsonify({"status": status}), 200  # 200 OK
+            status, model_name, model_notes = row
+            return jsonify({
+                "model_type": model_type,
+                "model_number": number,
+                "status": status,
+                "model_name": model_name,
+                "model_notes": model_notes
+            }), 200  # 200 OK
         else:
             # Return a more informative error message
-            return jsonify({"error": f"Model number {model_type}-{number} not found in the database."}), 404  # 404 Not Found
+            return jsonify({
+                "error": f"Model number {model_type}-{number} not found in the database."
+            }), 404  # 404 Not Found
 
 def release_unconfirmed_numbers():
     with sqlite3.connect(DATABASE) as conn:
@@ -212,6 +229,35 @@ def release_unconfirmed_numbers():
         #     print(f"No numbers found to release at this time.")
 
         # print("\n")  # Add a newline for clarity in the logs
+
+@app.route('/edit_model_details/<model_id>', methods=['POST'])
+def edit_model_details(model_id):
+    # Extract model_type and number from model_id
+    model_type, number = model_id.split('-')
+
+    # Extract the data sent from the client.
+    data = request.json
+
+    model_name = data.get('model_name')
+    model_notes = data.get('model_notes')
+
+    # Check if data is present
+    if not model_name or not model_notes:
+        return jsonify({"error": "model_name and model_notes are required!"}), 400
+
+    # Update the data in the database.
+    with sqlite3.connect(DATABASE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE model_details
+            SET model_name = ?, model_notes = ?
+            WHERE model_type = ? AND model_number = ?
+        """, (model_name, model_notes, model_type, int(number)))
+        conn.commit()
+
+    # Send a response back to the client.
+    return jsonify({"status": "Successfully updated model details!"})
+
 
 if __name__ == '__main__':
     init_db()

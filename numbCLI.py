@@ -26,6 +26,7 @@ import requests
 import cmd
 import configparser
 import os
+import shlex
 
 # Configuration utility functions
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser("~"), ".model_cli_config")
@@ -145,21 +146,52 @@ class NumberingCLI(cmd.Cmd):
             model_type, number = parts
             response = requests.get(f"{BASE_URL}/search/{model_type}/{number}")
             if response.status_code == 200:
-                status = response.json()["status"]
+                data = response.json()
+                status = data["status"]
+                model_name = data.get("model_name", "N/A")  # Default to "N/A" if not provided
+                model_notes = data.get("model_notes", "N/A")  # Default to "N/A" if not provided
                 
                 # Checking the status to print the correct message
                 if status == "pulled":
-                    print(f"Model {model_type}, Number {number}: {status}, awaiting confirmation")
+                    print(f"Model {model_type}-{number}: {status}, awaiting confirmation")
                 elif status == "confirmed":
-                    print(f"Model {model_type}, Number {number}: {status}")
+                    print(f"Model {model_type}-{number}: {status}")
                 else:
-                    print(f"Model {model_type}, Number {number}: {status}")
-                    
+                    print(f"Model {model_type}-{number}: {status}")
+
+                # Display the model name and notes
+                print(f"Model Name: {model_name}")
+                print(f"Model Notes: {model_notes}")
+                
             else:
                 print(response.json()["error"])
             
         except (ValueError, argparse.ArgumentError):
             print("Invalid input format. Please use the format MODEL-NUMBER, e.g., SYS-0001")
+
+    def do_edit_model_details(self, args):
+        """Edit details for a specific model number. Usage: edit_model_details <model_number> "<model_name>" "<model_notes>" """
+        try:
+            # Split the arguments based on space first to separate model_number
+            parts = args.split(maxsplit=1)
+            model_number = parts[0]
+
+            # Now, let's find model_name and model_notes enclosed in double quotes
+            import shlex
+            model_name, model_notes = shlex.split(parts[1])
+
+            # Make the request to edit the model details
+            payload = {
+                "model_name": model_name,
+                "model_notes": model_notes
+            }
+            response = requests.post(f"{BASE_URL}/edit_model_details/{model_number}", json=payload)
+
+            # Print the server response or an error message
+            print(response.json().get("status", "An error occurred."))
+
+        except Exception as e:
+            print(f"Error processing the command: {e}. Ensure the correct format is used.")
 
     def do_set_base_url(self, url):
         """Set the base URL for the CLI."""

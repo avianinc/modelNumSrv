@@ -115,6 +115,8 @@ Use `help` or `?` to see descriptions and guidance for each command.
 
 For ease of use, especially for those unfamiliar with Python or who prefer not to run scripts directly, an executable version of the CLI named `numcli.exe` has been provided in the `dist` folder. Run this file with the ```--interactive``` command. 
 
+Build the cli using the command ```pyinstaller --onefile --name numbcli numbCLI.py```
+
 ### Using the Executable:
 
 1. Navigate to the `dist` folder.

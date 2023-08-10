@@ -1,4 +1,4 @@
-name: Publish Docker image to Docker Hub and build CLI
+name: Build CLI and Publish Docker image
 
 on:
   push:
@@ -6,35 +6,40 @@ on:
       - main  # Or the branch name from which you want to trigger the action
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  build_and_push:
+    name: Build CLI and Push Docker image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2
-
-      - name: Setup Python
+      
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8  # or your required version
-
-      - name: Install PyInstaller and Build Executable
-        run: |
-          pip install pyinstaller
-          pyinstaller --onefile numbCLI.py
-
-      - name: Upload Executable as Artifact
+          python-version: 3.8  # You can adjust this to your preferred version
+      
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      
+      - name: Build executable with PyInstaller
+        run: pyinstaller --onefile numbCLI.py
+      
+      # This is a debug step to ensure the executable is built
+      - name: List contents of dist directory
+        run: ls -alh ./dist/
+      
+      - name: Upload numbCLI.exe as artifact
         uses: actions/upload-artifact@v2
         with:
           name: numbCLI-executable
           path: ./dist/numbCLI.exe
-
+      
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Build and push
+      
+      - name: Build and push Docker image
         env:
-          IMAGE_NAME: modelnumbersrv  # Name of your Docker image, replace it accordingly.
+          IMAGE_NAME: modelnumbersrv  # Replace with your Docker image name.
         run: |
           docker build -t $IMAGE_NAME .
           docker tag $IMAGE_NAME ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:latest

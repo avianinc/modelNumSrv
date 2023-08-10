@@ -24,6 +24,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS model_numbers (
             id INTEGER PRIMARY KEY,
             model_type TEXT NOT NULL UNIQUE,
+            description TEXT,
             latest_number INTEGER NOT NULL DEFAULT 0,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -39,24 +40,27 @@ def init_db():
         ''')
         conn.commit()
 
-@app.route('/add_model_type/<model_type>', methods=['POST'])
-def add_model_type(model_type):
+@app.route('/add_model_type/<model_type>/<description>', methods=['POST'])
+def add_model_type(model_type, description):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO model_numbers (model_type) VALUES (?)", (model_type,))
+            cursor.execute("INSERT INTO model_numbers (model_type, description) VALUES (?, ?)", (model_type, description))
             conn.commit()
-            return jsonify({"status": "Model type added successfully!"}), 200
+            return jsonify({"status": f"Model type {model_type} added with description: {description}"}), 200
         except sqlite3.IntegrityError:
-            return jsonify({"error": "Model type already exists!"}), 400
+            return jsonify({"error": "Model type already exists."}), 400
 
 @app.route('/list_model_types', methods=['GET'])
 def list_model_types():
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT model_type FROM model_numbers")
-        model_types = [row[0] for row in cursor.fetchall()]
-        return jsonify({"model_types": model_types}), 200
+        cursor.execute("SELECT model_type, description FROM model_numbers")
+        rows = cursor.fetchall()
+        if rows:
+            return jsonify({"model_types": [{ "type": row[0], "description": row[1] } for row in rows]}), 200
+        else:
+            return jsonify({"error": "No model types found."}), 404
 
 @app.route('/pull/<model_type>', methods=['GET'])
 def pull_number(model_type):

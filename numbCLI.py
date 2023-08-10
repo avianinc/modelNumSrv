@@ -33,17 +33,25 @@ class NumberingCLI(cmd.Cmd):
     intro = "Welcome to the model numbering CLI. Type help or ? to list commands.\n"
     prompt = "(numbering) "
 
-    def do_add_model_type(self, model_type):
-        """Add a new model type."""
-        response = requests.post(f"{BASE_URL}/add_model_type/{model_type}")
+    def do_add_model_type(self, args):
+        """Add a new model type with a description. Usage: add_model_type <model_type> <description>"""
+        args = args.split(maxsplit=1)
+        if len(args) != 2:
+            print("Usage: add_model_type <model_type> <description>")
+            return
+
+        model_type, description = args
+        response = requests.post(f"{BASE_URL}/add_model_type/{model_type}/{description}")
         print(response.json().get("status", "An error occurred."))
 
+
     def do_list_model_types(self, _):
-        """List available model types."""
+        """List available model types with their descriptions."""
         response = requests.get(f"{BASE_URL}/list_model_types")
         model_types = response.json().get("model_types", [])
         for model in model_types:
-            print(model)
+            print(f"Type: {model['type']}, Description: {model['description']}")
+
 
     def do_pull(self, model_type):
         """Retrieve and reserve the next available number for a given model type."""

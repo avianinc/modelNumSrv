@@ -8,7 +8,7 @@ import os
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser("~"), ".model_cli_config")
 
 def set_config(key, value):
-    with open(CONFIG_FILE_PATH, "a") as config_file:
+    with open(CONFIG_FILE_PATH, "w") as config_file:
         config_file.write(f"{key}={value}\n")
 
 def get_config(key):

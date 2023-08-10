@@ -41,7 +41,7 @@ This builds a Docker image titled `model-numbering-service`.
 After creating the image, start the server inside a Docker container with:
 
 ```bash
-docker run -p 5001:5001 model-numbering-service
+docker run -d -p 5001:5001 model-numbering-service
 ```
 
 Substitute `5001:5001` with `<host_port>:<container_port>` if you adjusted the port in `config.ini`.

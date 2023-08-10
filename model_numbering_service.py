@@ -85,23 +85,58 @@ def pull_number(model_type):
 def confirm(model_type, number):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
+
+        # Check if the model number exists
+        cursor.execute("SELECT status FROM model_details WHERE model_type=? AND model_number=?", (model_type, int(number)))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"error": f"Model {model_type}-{number} does not exist."}), 404  # 404 Not Found
+
+        # If the model number exists, but has a different status
+        if result[0] != 'pulled':
+            if result[0] == 'confirmed':
+                return jsonify({"error": f"Model {model_type}-{number} is already confirmed."}), 400  # 400 Bad Request
+            else:
+                return jsonify({"error": f"Model {model_type}-{number} cannot be confirmed in its current state."}), 400  # 400 Bad Request
+
+        # Confirm the model number
         cursor.execute("UPDATE model_details SET status='confirmed' WHERE model_type=? AND model_number=? AND status='pulled'", (model_type, int(number)))
         conn.commit()
+
         if cursor.rowcount:
-            return jsonify({"status": "confirmed"}), 200
+            return jsonify({"status": "confirmed"}), 200  # 200 OK
         else:
-            return jsonify({"error": "Invalid operation."}), 400
+            return jsonify({"error": "Unexpected error while confirming."}), 500  # 500 Internal Server Error
 
 @app.route('/release/<model_type>/<number>', methods=['POST'])
 def release(model_type, number):
     with sqlite3.connect(DATABASE) as conn:
         cursor = conn.cursor()
+
+        # Check if the model number exists
+        cursor.execute("SELECT status FROM model_details WHERE model_type=? AND model_number=?", (model_type, int(number)))
+        result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"error": f"Model {model_type}-{number} does not exist."}), 404  # 404 Not Found
+
+        # If the model number exists, but has a different status
+        if result[0] != 'confirmed':
+            if result[0] == 'released':
+                return jsonify({"error": f"Model {model_type}-{number} is already released."}), 400  # 400 Bad Request
+            else:
+                return jsonify({"error": f"Model {model_type}-{number} cannot be released in its current state."}), 400  # 400 Bad Request
+
+        # Release the model number
         cursor.execute("UPDATE model_details SET status='released' WHERE model_type=? AND model_number=? AND status='confirmed'", (model_type, int(number)))
         conn.commit()
+
         if cursor.rowcount:
-            return jsonify({"status": "released"}), 200
+            return jsonify({"status": "released"}), 200  # 200 OK
         else:
-            return jsonify({"error": "Invalid operation."}), 400
+            return jsonify({"error": "Unexpected error while releasing."}), 500  # 500 Internal Server Error
+
 
 @app.route('/search/<model_type>/<number>', methods=['GET'])
 def search(model_type, number):
@@ -109,11 +144,14 @@ def search(model_type, number):
         cursor = conn.cursor()
         cursor.execute("SELECT status FROM model_details WHERE model_type=? AND model_number=?", (model_type, int(number)))
         row = cursor.fetchone()
+
+        # If a matching row was found
         if row:
             status = row[0]
-            return jsonify({"status": status}), 200
+            return jsonify({"status": status}), 200  # 200 OK
         else:
-            return jsonify({"error": "Number not found."}), 404
+            # Return a more informative error message
+            return jsonify({"error": f"Model number {model_type}-{number} not found in the database."}), 404  # 404 Not Found
 
 def release_unconfirmed_numbers():
     with sqlite3.connect(DATABASE) as conn:

@@ -45,13 +45,19 @@ class NumberingCLI(cmd.Cmd):
             parser.add_argument("model_number", help="Model number in the format MODEL-NUMBER", type=str)
             args = parser.parse_args(arg.split())
 
-            model_type, number = args.model_number.split('-')
+            # Splitting the input and checking if it has the correct number of parts
+            parts = args.model_number.split('-')
+            if len(parts) != 2:
+                raise ValueError("Invalid input format.")
+
+            model_type, number = parts
             response = requests.post(f"{BASE_URL}/confirm/{model_type}/{number}")
             if response.status_code == 200:
                 status = response.json()["status"]
                 print(f"{status}: {model_type}-{number}")
             else:
-                print(response.json().get("error", "An error occurred."))
+                print(response.json()["error"])
+            
         except (ValueError, argparse.ArgumentError):
             print("Invalid input format. Please use the format MODEL-NUMBER, e.g., SYS-0001")
 
@@ -62,21 +68,20 @@ class NumberingCLI(cmd.Cmd):
             parser.add_argument("model_number", help="Model number in the format MODEL-NUMBER", type=str)
             args = parser.parse_args(arg.split())
 
-            model_type, number = args.model_number.split('-')
+            # Splitting the input and checking if it has the correct number of parts
+            parts = args.model_number.split('-')
+            if len(parts) != 2:
+                raise ValueError("Invalid input format.")
+
+            model_type, number = parts
             response = requests.post(f"{BASE_URL}/release/{model_type}/{number}")
             if response.status_code == 200:
-                try:
-                    print(response.json()["status"])
-                except requests.exceptions.JSONDecodeError:
-                    print("Received non-JSON response:", response.text)
+                print(response.json()["status"])
             else:
-                try:
-                    print(response.json()["error"])
-                except requests.exceptions.JSONDecodeError:
-                    print("Error:", response.text)
+                print(response.json()["error"])
+            
         except (ValueError, argparse.ArgumentError):
             print("Invalid input format. Please use the format MODEL-NUMBER, e.g., SYS-0001")
-
 
     def do_search(self, arg):
         """Search for a specific number for a given model type."""
@@ -85,16 +90,28 @@ class NumberingCLI(cmd.Cmd):
             parser.add_argument("model_number", help="Model number in the format MODEL-NUMBER", type=str)
             args = parser.parse_args(arg.split())
 
-            model_type, number = args.model_number.split('-')
+            parts = args.model_number.split('-')
+            if len(parts) != 2:
+                raise ValueError("Invalid input format.")
+            
+            model_type, number = parts
             response = requests.get(f"{BASE_URL}/search/{model_type}/{number}")
             if response.status_code == 200:
                 status = response.json()["status"]
-                print(f"Model {model_type}, Number {number}: {status}")
+                
+                # Checking the status to print the correct message
+                if status == "pulled":
+                    print(f"Model {model_type}, Number {number}: {status}, awaiting confirmation")
+                elif status == "confirmed":
+                    print(f"Model {model_type}, Number {number}: {status}")
+                else:
+                    print(f"Model {model_type}, Number {number}: {status}")
+                    
             else:
                 print(response.json()["error"])
+            
         except (ValueError, argparse.ArgumentError):
             print("Invalid input format. Please use the format MODEL-NUMBER, e.g., SYS-0001")
-
 
     def do_exit(self, _):
         """Exit the CLI."""

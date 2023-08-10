@@ -28,6 +28,12 @@ import configparser
 import os
 import sys
 
+# Clear the screen 
+CLEAR_CMD = 'clear' if os.name == 'posix' else 'cls'
+
+# Clear the console
+def clear_console():
+    os.system(CLEAR_CMD)
 
 # Configuration utility functions
 CONFIG_FILE_PATH = os.path.join(os.path.expanduser("~"), ".model_cli_config")
@@ -89,39 +95,72 @@ class NumberingCLI(cmd.Cmd):
             self.print_menu()
 
     def add_model_type_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_type = input("Enter model type (e.g. SYS): ")
         description = input("Enter description: ")
         self.do_add_model_type(f"{model_type} {description}")
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def pull_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_type = input("Enter model type for which to retrieve a number (e.g. SYS): ")
         self.do_pull(model_type)
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def list_model_types(self, _):
+        clear_console() # Clear console and list commands
+        print("Current Model Types:")  # Prints 50 dashes
         model_type = "List current model types: "
+        print("-" * 50)  # Prints 50 dashes
         self.do_list_model_types(model_type)
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def confirm_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_number = input("Enter model number to confirm (e.g. SYS-0001): ")
         self.do_confirm(model_number)
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def release_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_number = input("Enter model number to release (e.g. SYS-0001): ")
         self.do_release(model_number)
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def search_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_number = input("Enter model number to search (e.g. SYS-0001): ")
         self.do_search(model_number)
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def edit_model_details_prompt(self, _):
+        clear_console() # Clear console and list commands
         model_number = input("Enter model number (e.g. SYS-0001): ")
         model_name = input('Enter model name (in quotes if there are spaces): ')
         model_notes = input('Enter model notes (in quotes if there are spaces): ')
         self.do_edit_model_details(f"{model_number} {model_name} {model_notes}")
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def set_base_url_prompt(self, _):
+        clear_console() # Clear console and list commands
         url = input("Enter the new base URL: ")
         self.do_set_base_url(url)
+        # Clear console and list commands
+        print("-" * 50)  # Prints 50 dashes
+        self.print_menu()
 
     def do_add_model_type(self, args):
         """Add a new model type with a description. Usage: add_model_type <model_type> <description>"""

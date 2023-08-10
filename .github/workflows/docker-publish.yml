@@ -27,7 +27,12 @@ jobs:
       # This is a debug step to ensure the executable is built
       - name: List contents of dist directory
         run: ls -alh ./dist/
+
+      # Rename the built numbCLI to numbCLI.exe
+      - name: Rename numbCLI to numbCLI.exe
+        run: mv ./dist/numbCLI ./dist/numbCLI.exe
       
+       # Then, upload the renamed executable as an artifact
       - name: Upload numbCLI.exe as artifact
         uses: actions/upload-artifact@v2
         with:

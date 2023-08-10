@@ -2,6 +2,23 @@ import argparse
 import requests
 import cmd
 import configparser
+import os
+
+# Configuration utility functions
+CONFIG_FILE_PATH = os.path.join(os.path.expanduser("~"), ".model_cli_config")
+
+def set_config(key, value):
+    with open(CONFIG_FILE_PATH, "a") as config_file:
+        config_file.write(f"{key}={value}\n")
+
+def get_config(key):
+    if os.path.exists(CONFIG_FILE_PATH):
+        with open(CONFIG_FILE_PATH, "r") as config_file:
+            for line in config_file:
+                k, v = line.strip().split('=')
+                if k == key:
+                    return v
+    return None
 
 # Read from the config file
 config = configparser.ConfigParser()
@@ -9,10 +26,10 @@ config.read('config.ini')
 
 HOST = 'localhost'
 PORT = config.get('DEFAULT', 'PORT', fallback='5001')
-BASE_URL = f"http://{HOST}:{PORT}"
+BASE_URL = get_config("BASE_URL") or f"http://{HOST}:{PORT}"
 
 class NumberingCLI(cmd.Cmd):
-    use_rawinput = True  # Add this line
+    use_rawinput = True
     intro = "Welcome to the model numbering CLI. Type help or ? to list commands.\n"
     prompt = "(numbering) "
 
@@ -112,6 +129,16 @@ class NumberingCLI(cmd.Cmd):
             
         except (ValueError, argparse.ArgumentError):
             print("Invalid input format. Please use the format MODEL-NUMBER, e.g., SYS-0001")
+
+    def do_set_base_url(self, url):
+        """Set the base URL for the CLI."""
+        try:
+            set_config("BASE_URL", url)
+            global BASE_URL
+            BASE_URL = url
+            print(f"Base URL set to {url}")
+        except Exception as e:
+            print(f"Error setting base URL: {e}")
 
     def do_exit(self, _):
         """Exit the CLI."""

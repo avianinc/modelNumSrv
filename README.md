@@ -1,4 +1,4 @@
-# Model Numbering Service
+# Model Numbering Service 
 
 Welcome to the Model Numbering Service. This system offers an automated solution for managing model numbers through a Flask API. The system comprises a server (`model_numbering_service.py`) interacting with a SQLite database (`model_numbers.db`), and a CLI (`numbCLI.py`) allowing users to easily manage model numbers.
 

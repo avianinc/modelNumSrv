@@ -65,7 +65,7 @@ class NumberingCLI(cmd.Cmd):
     prompt = "Select option: "
 
     menu = {
-        "A": {"info": "Add- Model Type", "func": "add_model_type_prompt"},
+        "A": {"info": "Add - Model Type", "func": "add_model_type_prompt"},
         "L": {"info": "List - Model Types", "func": "list_model_types"},
         "P": {"info": "Pull - Model Number", "func": "pull_prompt"},
         "C": {"info": "Confirm - Model Number", "func": "confirm_prompt"},
